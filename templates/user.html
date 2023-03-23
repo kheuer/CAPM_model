@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ session["username"] }}´s Landing Page{% endblock %}
+
+{% block css %}
+<style>
+
+    .portfolios {
+     margin-left: 5%;
+     margin-top: 10%;
+     width: 30%;
+     float: left
+    }
+
+    .company_logo{
+        width: 18%;
+    }
+
+  </style>  
+{% endblock %}
+
+{% block body %}
+    <body class="bg-gradient-primary">
+
+        <div class="container">
+
+            <!-- Outer Row -->
+            <div class="row justify-content-center">
+
+                <div class="col-xl-10 col-lg-12 col-md-9">
+                    <div class="card o-hidden border-0 shadow-lg my-5">
+                        
+                        <div class="col">
+                            <div class="portfolios">
+                                {% if saved_portfolios %}
+                                <h5>Saved Portfolios:</h5>
+                                    {% for portfolio in saved_portfolios %}
+                                        <hr>
+                                        <form class="load" action="#" method="post">
+                                            <input class="btn btn-secondary" type="submit" value='{{ portfolio["name"] }}' href>
+                                            <input size="1" type="hidden" name="type" value="load_portfolio">
+                                            <input size="1" type="hidden" name="portfolio_name" value='{{ portfolio["name"] }}'>
+                                        </form>
+                                        {% for position in portfolio["positions"] %}
+                                            <img class="company_logo" src="https://financialmodelingprep.com/image-stock/{{position}}.png">
+                                        {% endfor %}
+                                        <text>Weights: {{ "%.1f"|format(portfolio["min_position_weight"]*100) }}% - {{ "%.1f"|format(portfolio["max_position_weight"]*100) }}%</text>
+                                        {% endfor %}
+                                    <h1></h1>
+                                {% endif %}
+                            </div>
+                            <!-- Nested Row within Card Body -->
+                            <div class="row">
+                                <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                                <div class="col-lg-6">
+                                    <div class="p-5">
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Welcome Back, {{session["username"]}}</h1>
+                                        </div>
+                                        <form class="change_settings" action="{{ url_for('user') }}" method="post">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control form-control-user"
+                                                    name="min_position_weight"
+                                                    placeholder="Minimum Position size">
+                                            </div>
+                                            <h1></h1>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control form-control-user"
+                                                    name="max_position_weight"
+                                                    placeholder="Maximum Position size">
+                                            </div>
+                                            <h1></h1>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control form-control-user"
+                                                    name="cash_value_portfolio"
+                                                    placeholder="Cash Value of Portfolio (USD)">
+                                            </div>
+                                            <h1></h1>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control form-control-user"
+                                                    name="risk_free_rate"
+                                                    placeholder="Risk Free Interest Rate">
+                                            </div>
+
+                                            <h1></h1>
+                                            <input class="btn btn-primary" type="submit" value="Save Changes" href>
+                                            <input size="1" type="hidden" name="type" value="change_settings">
+                                        </form>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap core JavaScript-->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Core plugin JavaScript-->
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+        <!-- Custom scripts for all pages-->
+        <script src="js/sb-admin-2.min.js"></script>
+
+    </body>
+{% endblock %}

@@ -1,0 +1,53 @@
+Guest:
+  max_position_weight: 1
+  min_position_weight: 0
+  portfolio_value: 500000
+  portfolios: []
+  risk_free_rate: 0.04
+admin:
+  max_position_weight: 0.2
+  min_position_weight: 0.001
+  portfolio_value: 490000.0
+  portfolios:
+  - max_position_weight: 0.2
+    min_position_weight: 0.001
+    name: Monash Uni
+    positions:
+    - AMZN
+    - AAPL
+    - MSFT
+    - BNTX
+    - LMT
+    - NOVA
+    - OPEN
+    - DNNGY
+    - PHR
+    - PLUG
+    - PRO
+    - RWE.DE
+    - VCYT
+    - VET
+    - XOM
+    are_long:
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+      - True
+  risk_free_rate: 0.02
+koos:
+  max_position_weight: 1
+  min_position_weight: 0
+  portfolio_value: 500000
+  portfolios: []
+  risk_free_rate: 0.04

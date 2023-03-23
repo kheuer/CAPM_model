@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Main{% endblock %}
+
+{% block css %}
+<style>
+
+    .assets-column {
+     margin-left: 0%;
+     width: 30%;
+     float: left
+    }
+    .scatterplot-box {
+        float: right;
+        width: 65%;
+    }
+    .scatterplot {
+        width: 100%
+    }
+
+    .company_logo{
+        float: right;
+        width: 20%;
+    }
+    
+    .company_desc{
+        float: left;
+        width: 60%;
+    }
+
+
+  </style>  
+{% endblock %}
+
+
+{% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="kheuer" content="">
+
+        <link 
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        
+
+{% endblock %}
+
+
+{% block body %}
+    <body id="page-top">
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+                &nbsp;
+                <!-- Assets and scatterplot grid -->
+                <div class="container">
+                    <!-- Assets column -->
+                    <div class="assets-column">
+                       
+                        <div class="h5 mb-0 font-weight-bold text-gray-100">Positions in Portfolio:</div>
+                        &nbsp;
+                        <div class="col" style="overflow-x: scroll; height:400px;">
+                            {% for asset in assets.values() %}
+                                <!-- Asset Representation -->
+                                <div class="col">
+                                    <div class="card ">
+                                        <div class="card-body">
+                                            <div class="col no-gutters align-items-left">
+                                                <div class="company_desc">
+                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                        {{ asset["company_name"] }}</div>
+
+                                                        {% if asset["change"]>=0 %}
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-100">
+                                                                <span>${{asset["price"]}}</span>  <span style="font-size:small;color:green">+{{asset["change"]}}%</span>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-100">
+                                                                <span>${{asset["price"]}}</span>  <span style="font-size:small;color:red">{{asset["change"]}}%</span>
+                                                            </div>
+                                                        {% endif %}
+                                                </div>
+                                                <br>
+                                                <img class="company_logo" src="https://financialmodelingprep.com/image-stock/{{asset['ticker_symbol']}}.png">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1></h1>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Scatterplot box -->
+                    <div class="scatterplot-box">
+                        <!-- Pie Chart -->
+                        <div class="row-xl-1 row-lg-1">
+                            <div class="card shadow mb-4">
+                                <!-- Scatterplot description -->
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-centre justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Portfolio Allocation:</h6>
+                                    <h6>Position Size {{ session["portfolio_settings"]["min_position_weight"]*100 }}% - {{session["portfolio_settings"]["max_position_weight"]*100}}%</h6>
+                                </div>
+                                <!-- Scatterplot image-->
+                                <div class="card-body">
+                                    <div>
+                                        <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+                                        <script>
+                                            var xyValues = {{ portfolio_sd_er | safe }};
+                                            var scatterColors = {{ scatter_colors | safe }}
+                                            var portfoliosDescription = {{ portfolios_description | safe }}
+                                            var lookupArray = {{ portfolio_index_lookup_array | safe }}
+                                            var risk_free_rate = {{ risk_free_rate | safe }}
+                                            
+                                            var scatterplot = new Chart("myChart", {
+                                                type: "scatter",
+                                                data: {
+                                                    datasets: [{
+                                                        pointRadius: 4,
+                                                        pointBackgroundColor: scatterColors,
+                                                        data: xyValues
+                                                    }]
+                                                },
+                                                options: {
+                                                    interactive: true,
+                                                    scales: {
+                                                        yAxes: [{
+                                                            scaleLabel: {
+                                                                display: true,
+                                                                labelString: "Expected Return",
+                                                            },
+                                                            ticks: {
+                                                                callback: function(value, index, ticks) {
+                                                                    return (value*100 ).toFixed(0)+ "%";
+                                                                }
+                                                            }
+                                                        }],
+                                                        xAxes: [{
+                                                            scaleLabel: {
+                                                                display: true,
+                                                                labelString: "Standard Deviation",
+                                                            },
+                                                            ticks: {
+                                                                callback: function(value, index, ticks) {
+                                                                    return (value*100).toFixed(2) + "%";
+                                                                }
+                                                            }
+                                                        }]
+                                                    },
+                                                    legend: {
+                                                        display: false
+                                                    },
+                                                    tooltips: {
+                                                        displayColors: false,
+                                                        callbacks: {
+                                                            label: function(context) {
+                                                                let sd = context.xLabel
+                                                                let er = context.yLabel
+                                                                let lookupVal = String(sd)+String(er)
+                                                                let index = lookupArray.indexOf(lookupVal)
+                                                                return [portfoliosDescription[index]["desc"],
+                                                                        "",
+                                                                        "Expected Return: " + (100*er).toFixed(1)+"%", 
+                                                                        "Standard Deviation: " + (100*sd).toFixed(2) + "%",
+                                                                        "Sharpe Ratio: " + ((er - risk_free_rate) / sd ).toFixed(1)
+                                                                    ];
+
+                                                            }
+                                                        }
+                                                    },
+                                                    onClick(click) {
+                                                        const points = scatterplot.getElementsAtEventForMode(click, "nearest", {
+                                                            intersect: true }, true);
+                                                        if (points[0]) {
+                                                            let index = points[0]._index
+                                                            let data = xyValues[index]
+                                                            // open portfolio page
+                                                            window.open("/portfolio/"+data["x"]+"/"+data["y"], "_self").focus();
+                                                        }
+                                                        
+                                                    }
+                                                }
+                                            });
+                                        </script>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Bootstrap core JavaScript-->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Core plugin JavaScript-->
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+        <!-- Custom scripts for all pages-->
+        <script src="js/sb-admin-2.min.js"></script>
+
+        <!-- Page level plugins -->
+        <script src="vendor/chart.js/Chart.min.js"></script>
+
+        <!-- Page level custom scripts -->
+        <script src="js/demo/chart-area-demo.js"></script>
+        <script src="js/demo/chart-pie-demo.js"></script>
+
+    </body>
+{% endblock %}
