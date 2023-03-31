@@ -258,7 +258,7 @@ class Portfolio:
         expected_return = 0
         for i, weight in enumerate(weights):
             expected_return += weight * self[i].expected_return
-        return (expected_return + 1) ** 252 - 1  # annualize daily returns (262 trading days in a year)a
+        return (expected_return + 1) ** 252 - 1  # annualize daily returns (252 trading days in a year)
 
     def get_variance(self, weights):
         assert 0.999999 <= sum(weights) <= 1.00001
@@ -266,9 +266,10 @@ class Portfolio:
         for i, weight_i in enumerate(weights):
             for j, weight_j in enumerate(weights):
                 variance += weight_i * weight_j * self.get_covariance(i, j)
-        return ((variance ** 0.5) * np.sqrt(252)) ** 2
+        return ((variance ** 0.5) * np.sqrt(252)) ** 2      # annualize daily variance (252 trading days in a year)
 
     def get_standard_deviation(self, weights):
+        
         return self.get_variance(weights) ** 0.5
 
     def get_mvp_weights(self, min_position_weight=0.00, max_position_weight=1):
